@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
-import uuid
+from sqlalchemy import create_engine, Column, Integer, String
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -18,7 +19,8 @@ def create_task():
         "id": curr_id,
         "title": data['title'],
         "description": data['description'],
-        "status": data.get('status', 'incomplete')
+        "status": data.get('status', 'incomplete'),
+        "date_created": datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     }
     tasks[curr_id] = task
     curr_id += 1

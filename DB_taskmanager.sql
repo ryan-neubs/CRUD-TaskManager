@@ -1,3 +1,5 @@
+CREATE DATABASE db_taskmanager;
+USE db_taskmanager;
 CREATE TABLE TaskInfo (
     task_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(50) NOT NULL,
@@ -9,6 +11,4 @@ CREATE TABLE TaskInfo (
     last_modified_by VARCHAR(50) NOT NULL,
     date_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
-USE db_taskmanager;
 SELECT * FROM TaskInfo;
