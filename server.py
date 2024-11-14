@@ -80,7 +80,6 @@ def get_task(id: int):
             statement = select(Task).filter_by(task_id=id)
 
             task_retrieved = session.execute(statement).scalars().first()
-            print(task_retrieved)
 
             task = {
                 'task_id': task_retrieved.task_id,
