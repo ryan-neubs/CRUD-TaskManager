@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
 from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
+from db_schema import Task
 import os
 
 app = Flask(__name__)
@@ -15,27 +17,40 @@ db_name = os.getenv("DB_NAME")
 
 engine = create_engine(f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
 
-tasks = {}
-curr_id = 1
-
 @app.route('/tasks', methods=['POST'])
 def create_task():
-    global curr_id
     data = request.get_json()
 
-    if not data or 'title' not in data or 'description' not in data:
-        return jsonify({"error":"Title and description are required"}), 400
-    
-    task = {
-        "id": curr_id,
-        "title": data['title'],
-        "description": data['description'],
-        "status": data.get('status', 'incomplete'),
-        "date_created": datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    }
-    tasks[curr_id] = task
-    curr_id += 1
-    return jsonify(task), 201
+    with Session(engine) as session:
+
+        # Need handling for users, commenting out and using default user for now
+        # new_task = Task(
+        #     title=data['title'],
+        #     description=data.get('description', ''),
+        #     status=data['status'],
+        #     created_by=data['created_by'],
+        #     last_modified_by=data['last_modified_by'],
+        #     priority=data.get('priority', None)
+
+        # )
+
+        new_task = Task(
+            title=data['title'],
+            description=data.get('description', ''),
+            status=data.get('status', 'incomplete'),
+            created_by='Test User',
+            last_modified_by='Test User',
+            priority=data.get('priority', None)
+        )
+
+        try:
+            session.add(new_task)
+            session.commit()
+            return jsonify({'message':'Task added successfully', 'task_id': new_task.task_id}), 201
+        
+        except Exception as e:
+            session.rollback()
+            return jsonify({'error': str(e)}), 500
 
 
 @app.route('/tasks', methods=['GET'])
