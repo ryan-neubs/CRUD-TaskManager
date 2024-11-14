@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, select
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
@@ -22,28 +22,15 @@ def create_task():
     data = request.get_json()
 
     with Session(engine) as session:
-
-        # Need handling for users, commenting out and using default user for now
-        # new_task = Task(
-        #     title=data['title'],
-        #     description=data.get('description', ''),
-        #     status=data['status'],
-        #     created_by=data['created_by'],
-        #     last_modified_by=data['last_modified_by'],
-        #     priority=data.get('priority', None)
-
-        # )
-
-        new_task = Task(
-            title=data['title'],
-            description=data.get('description', ''),
-            status=data.get('status', 'incomplete'),
-            created_by='Test User',
-            last_modified_by='Test User',
-            priority=data.get('priority', None)
-        )
-
         try:
+            new_task = Task(
+                title=data['title'],
+                description=data.get('description', ''),
+                status=data.get('status', 'incomplete'),
+                created_by='Test User',
+                priority=data.get('priority', None)
+            )
+
             session.add(new_task)
             session.commit()
             return jsonify({'message':'Task added successfully', 'task_id': new_task.task_id}), 201
@@ -55,7 +42,13 @@ def create_task():
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    return jsonify(tasks), 200
+    with Session(engine) as session:
+        try:
+            statement = select()
+
+        except Exception as e:
+            session.rollback()
+            return jsonify({'error': str(e)}), 500
 
 
 @app.route('/tasks/<int:task_id>')

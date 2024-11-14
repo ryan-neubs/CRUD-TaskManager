@@ -8,7 +8,6 @@ CREATE TABLE TaskInfo (
     status VARCHAR(25) NOT NULL,
     created_by VARCHAR(50) NOT NULL,
     priority VARCHAR(15),
-    last_modified_by VARCHAR(50) NOT NULL,
     date_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 SELECT * FROM TaskInfo;
