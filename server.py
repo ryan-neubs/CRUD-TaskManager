@@ -40,7 +40,7 @@ def create_task():
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:amount>', methods=['GET'])
+@app.route('/tasks/<int:amount>', methods=['GET']) # Change this to use a query parameter
 def get_tasks(amount=10):
     with Session(engine) as session:
         try:
