@@ -27,7 +27,7 @@ def create_task():
                 title=data['title'],
                 description=data.get('description', ''),
                 status=data.get('status', 'incomplete'),
-                created_by='Test User',
+                created_by='Test User', # Defaulting to test user right now. Not sure how user idenification will work yet
                 priority=data.get('priority', None)
             )
 
@@ -40,26 +40,44 @@ def create_task():
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks', methods=['GET'])
-def get_tasks():
+@app.route('/tasks/<int:amount>', methods=['GET'])
+def get_tasks(amount=10):
     with Session(engine) as session:
         try:
-            statement = select()
+            statement = select(Task).filter_by(created_by='Test User').limit(amount)
+
+            tasks_retrieved = session.execute(statement).all()
+
+            task_list = [
+                {
+                    'task_id': task.task_id,
+                    'title': task.title,
+                    'description': task.description,
+                    'creation_date': task.creation_date,
+                    'status': task.status,
+                    'created_by': task.created_by,
+                    'priority': task.priority,
+                    'date_modified': task.date_modified
+
+                }
+                for task in tasks_retrieved
+            ]
+            return jsonify(task_list), 200
 
         except Exception as e:
             session.rollback()
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:task_id>')
-def get_task(task_id: int):
-    if task_id < 0:
-            return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
+# @app.route('/tasks/<int:task_id>', methods=["GET"])
+# def get_task(task_id: int):
+#     if task_id < 0:
+#             return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
 
-    if task_id not in tasks:
-        return jsonify({"error": f"Task with id {task_id} not found."}), 404
+#     if task_id not in tasks:
+#         return jsonify({"error": f"Task with id {task_id} not found."}), 404
     
-    return jsonify(tasks[task_id]), 200
+#     return jsonify(tasks[task_id]), 200
 
 
 @app.route('/tasks/<int:task_id>', methods=['PUT'])
