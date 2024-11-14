@@ -1,8 +1,19 @@
 from flask import Flask, jsonify, request
 from sqlalchemy import create_engine, Column, Integer, String
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
+
+load_dotenv('.env')
+db_user = os.getenv("DB_USER")
+db_pass = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST")
+db_port = os.getenv("DB_PORT")
+db_name = os.getenv("DB_NAME")
+
+engine = create_engine(f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
 
 tasks = {}
 curr_id = 1
@@ -33,7 +44,7 @@ def get_tasks():
 
 
 @app.route('/tasks/<int:task_id>')
-def get_task(task_id):
+def get_task(task_id: int):
     if task_id < 0:
             return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
 
@@ -44,7 +55,7 @@ def get_task(task_id):
 
 
 @app.route('/tasks/<int:task_id>', methods=['PUT'])
-def update_task(task_id):
+def update_task(task_id: int):
     data = request.get_json()
     for key, val in data.items():
         tasks[task_id][key] = val
@@ -53,7 +64,7 @@ def update_task(task_id):
 
 
 @app.route('/tasks/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id):
+def delete_task(task_id: int):
     if task_id < 0:
         return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
 
