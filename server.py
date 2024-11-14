@@ -47,7 +47,7 @@ def get_tasks(amount=10):
             statement = select(Task).filter_by(created_by='Test User').limit(amount)
 
             tasks_retrieved = session.execute(statement).all()
-
+            print(tasks_retrieved[0].task_id)
             task_list = [
                 {
                     'task_id': task.task_id,
