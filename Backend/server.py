@@ -154,13 +154,13 @@ def delete_task(id: int):
             session.commit()
             
             if result.rowcount == 0:
-                return({"message": "Task does not exist"}), 404
+                return({"message": f"Task of id: {id} does not exist"}), 404
             
             return jsonify({"message": f"Task of id: {id} has been deleted"})
 
     except Exception as e:
         session.rollback()
-        jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 @app.errorhandler(400)
@@ -256,7 +256,7 @@ def too_many_requests_error(error):
 def internal_server_error(error):
     response = {
         "error": "Internal Server Error",
-        "message": "An unexpected error occurred. Please try again later."
+        "message": str(error)
     }
     return jsonify(response), 500
 
