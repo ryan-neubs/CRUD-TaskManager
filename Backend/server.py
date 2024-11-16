@@ -120,9 +120,101 @@ def delete_task(task_id: int):
     return '', 204
 
 
+@app.errorhandler(400)
+def bad_request_error(error):
+    response = {
+        "error": "Bad Request",
+        "message": str(error)
+    }
+    return jsonify(response), 400
+
+@app.errorhandler(401)
+def unauthorized_error(error):
+    response = {
+        "error": "Unauthorized",
+        "message": str(error)
+    }
+    return jsonify(response), 401
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    response = {
+        "error": "Forbidden",
+        "message": str(error)
+    }
+    return jsonify(response), 403
+
+@app.errorhandler(404)
+def not_found_error(error):
+    response = {
+        "error": "Not Found",
+        "message": str(error)
+    }
+    return jsonify(response), 404
+
+@app.errorhandler(405)
+def method_not_allowed_error(error):
+    response = {
+        "error": "Method Not Allowed",
+        "message": str(error)
+    }
+    return jsonify(response), 405
+
+@app.errorhandler(408)
+def request_timeout_error(error):
+    response = {
+        "error": "Request Timeout",
+        "message": str(error)
+    }
+    return jsonify(response), 408
+
+@app.errorhandler(409)
+def conflict_error(error):
+    response = {
+        "error": "Conflict",
+        "message": str(error)
+    }
+    return jsonify(response), 409
+
+@app.errorhandler(410)
+def gone_error(error):
+    response = {
+        "error": "Gone",
+        "message": str(error)
+    }
+    return jsonify(response), 410
+
+@app.errorhandler(413)
+def payload_too_large_error(error):
+    response = {
+        "error": "Payload Too Large",
+        "message": str(error)
+    }
+    return jsonify(response), 413
+
+@app.errorhandler(415)
+def unsupported_media_type_error(error):
+    response = {
+        "error": "Unsupported Media Type",
+        "message": str(error)
+    }
+    return jsonify(response), 415
+
+@app.errorhandler(429)
+def too_many_requests_error(error):
+    response = {
+        "error": "Too Many Requests",
+        "message": str(error)
+    }
+    return jsonify(response), 429
+
 @app.errorhandler(500)
-def handle_internal_server_error(e):
-    return jsonify({"error": f"An internal server error occured: {e}"}), 500
+def internal_server_error(error):
+    response = {
+        "error": "Internal Server Error",
+        "message": "An unexpected error occurred. Please try again later."
+    }
+    return jsonify(response), 500
 
 
 if __name__ == '__main__':
