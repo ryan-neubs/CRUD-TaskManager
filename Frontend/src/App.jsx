@@ -17,6 +17,14 @@ function App() {
     date_modified: "",
   });
 
+  const [task_id, set_task_id] = useState("");
+
+
+
+
+
+  
+
   const sendTask = async () => {
     try {
       const request = await fetch("http://localhost:5000/tasks", {
@@ -33,9 +41,28 @@ function App() {
     }
   }
 
+  const deleteTask = async () => {
+    try {
+      const request = await fetch(`http://localhost:5000/tasks/${task_id}` ,{
+        method: "DELETE",
+      });
+    } catch (error){
+      console.log('Error: ' + error)
+    }
+  }
+
   const handleSubmit = (e) =>{
     e.preventDefault();
     sendTask();
+  }
+
+  const handleDeleteChange = (e) =>{
+    set_task_id(e.target.value)
+  }
+
+  const handleDelete = (e) =>{
+    e.preventDefault();
+    deleteTask();
   }
 
   const handleChange = (e) => {
@@ -67,7 +94,7 @@ function App() {
           <h2>Discover Amazing Features</h2>
           <p>Experience simplicity and functionality with our app. Let's get started!</p>
           
-          <div className='form-container'>
+          <div className='new-form-container'>
             <form className='task-form' onSubmit={handleSubmit}>
               <label id='title'>Title</label>
               <input 
@@ -115,12 +142,26 @@ function App() {
                 <option value="Review">Review</option>
                 <option value="Done">Done</option>
               </select>
-
             <button type='submit'>Create Task</button>
             </form>
           </div>
 
-          
+
+          <div className='delete-form-container'>
+            <form className='delete-task-form' onSubmit={handleDelete}>
+              <label id='TaskId'>Task ID</label>
+              <input
+                type='number'
+                id='task_id'
+                name='task_id'
+                value={task_id}
+                onChange={handleDeleteChange}
+                required
+              />
+              <button type='submit'>Delete task</button>
+            </form>
+          </div>
+
           </section>
       </main>
 
