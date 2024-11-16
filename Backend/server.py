@@ -49,7 +49,11 @@ def get_tasks():
 
     with Session(engine) as session: 
         try:
-            statement = select(Task).filter_by(created_by='Test User').limit(amount) # SQL Query
+            statement = (
+                select(Task)
+                .filter_by(created_by='Test User')
+                .limit(amount)
+            ) # SQL Query
 
             tasks_retrieved = session.execute(statement).scalars().all() # Executes query
             task_list = [
@@ -80,7 +84,10 @@ def get_task(id: int):
 
     with Session(engine) as session:
         try:
-            statement = select(Task).filter_by(task_id=id)
+            statement = (
+                select(Task)
+                .filter_by(task_id=id)
+            )
 
             task_retrieved = session.execute(statement).scalars().first()
 
