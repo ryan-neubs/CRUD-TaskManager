@@ -70,3 +70,37 @@
   color: #007bff;
   background-color: white;
 }
+
+.form-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20vh;
+  padding: 10px;
+  margin: 20px;
+}
+
+.task-form {
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 60%;
+  text-align: center;
+  align-content: center;
+  height: 20vh;
+}
+.task-form label {
+  display: block;
+}
+.task-form input{
+  width: 100%;
+}
+.task-form button {
+  margin-top: 10px;
+  display: flex;
+  justify-self: center;
+}
+.task-form #description {
+  height: max-content;
+  height: fit-content;
+}

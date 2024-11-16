@@ -13,7 +13,7 @@ CORS(app, resources={r"/*": {"": "localhost:5173"}}) #Allows requests to be made
                                                      #when ready
 
 
-load_dotenv('.env')                                  # Get environment variables
+load_dotenv('.env')                                  #Get environment variables
 db_user = os.getenv("DB_USER")
 db_pass = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
