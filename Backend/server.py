@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from sqlalchemy import create_engine, Column, Integer, String, select, update
+from sqlalchemy import create_engine, Column, Integer, String, select, update, delete
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
@@ -107,18 +107,18 @@ def update_task(id: int):
     data = request.get_json()
 
     try:
-        with Session(engine) as session:
+        with Session(engine) as session:        
             statement = (
                 update(Task)
                 .where(Task.task_id == id)
                 .values(**data) # Updates Task based on keys that are passed in JSON body
             )
+
             result = session.execute(statement)
             session.commit()
 
             if result.rowcount == 0: 
                 return jsonify({"message": "Task not found or no changes made"}), 404
-
 
             updated_task = session.execute(select(Task).where(Task.task_id == id)).scalar_one_or_none() # Get updated task so we can return it in the JSON
 
@@ -138,16 +138,29 @@ def update_task(id: int):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id: int):
-    if task_id < 0:
+@app.route('/tasks/<int:id>', methods=['DELETE'])
+def delete_task(id: int):
+    if id < 0:
         return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
+    
+    try:
+        with Session(engine) as session:
+            statement = (
+                delete(Task)
+                .where(Task.task_id == id)
+            )
 
-    if task_id not in tasks:
-        return jsonify({"error": f"Task with id {task_id} not found."}), 404
+            result = session.execute(statement)
+            session.commit()
+            
+            if result.rowcount == 0:
+                return({"message": "Task does not exist"}), 404
+            
+            return jsonify({"message": f"Task of id: {id} has been deleted"})
 
-    del tasks[task_id]
-    return '', 204
+    except Exception as e:
+        session.rollback()
+        jsonify({"error": str(e)})
 
 
 @app.errorhandler(400)
