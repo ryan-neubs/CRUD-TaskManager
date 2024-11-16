@@ -3,36 +3,36 @@ from sqlalchemy import create_engine, Column, Integer, String, select
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
-from db_schema import Task
+from Backend.db_schema import Task
 import os
 
 app = Flask(__name__)
 
-load_dotenv('.env')
+load_dotenv('.env') # Get environment variables
 db_user = os.getenv("DB_USER")
 db_pass = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
 db_port = os.getenv("DB_PORT")
 db_name = os.getenv("DB_NAME")
 
-engine = create_engine(f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
+engine = create_engine(f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}") # Connection to database using environment variables
 
 @app.route('/tasks', methods=['POST'])
 def create_task():
     data = request.get_json()
 
-    with Session(engine) as session:
+    with Session(engine) as session: # Open session for database requests
         try:
             new_task = Task(
                 title=data['title'],
                 description=data.get('description', ''),
                 status=data.get('status', 'incomplete'),
                 created_by='Test User', # Defaulting to test user right now. Not sure how user idenification will work yet
-                priority=data.get('priority', None)
+                priority=data.get('priority', None) 
             )
 
             session.add(new_task)
-            session.commit()
+            session.commit() # Confirms addition of task to database
             return jsonify({'message':'Task added successfully', 'task_id': new_task.task_id}), 201
         
         except Exception as e:
@@ -40,15 +40,15 @@ def create_task():
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/', methods=['GET']) # Change this to use a query parameter
+@app.route('/tasks/', methods=['GET']) # Change this to use a query parameter such as ?amount=10 (Ex: http://localhost:5000/tasks/?amount=10) 
 def get_tasks():
-    amount = request.args.get('amount') # Booya, first try
+    amount = request.args.get('amount') # Booya, first try. Retrieves amount specified in request
 
-    with Session(engine) as session:
+    with Session(engine) as session: 
         try:
-            statement = select(Task).filter_by(created_by='Test User').limit(amount)
+            statement = select(Task).filter_by(created_by='Test User').limit(amount) # SQL Query
 
-            tasks_retrieved = session.execute(statement).scalars().all()
+            tasks_retrieved = session.execute(statement).scalars().all() # Executes query
             task_list = [
                 {
                     'task_id': task.task_id,
@@ -61,18 +61,18 @@ def get_tasks():
                     'date_modified': task.date_modified
 
                 }
-                for task in tasks_retrieved
+                for task in tasks_retrieved # Creates a list of each task returned in the query
             ]
             return jsonify(task_list), 200
 
         except Exception as e:
-            session.rollback()
+            session.rollback() # Rolls back session if error occurs
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:id>', methods=["GET"])
+@app.route('/tasks/<int:id>', methods=["GET"]) # int:id is the id number of the task being retrieved
 def get_task(id: int):
-    if id < 0:
+    if id < 0: # Can't have an id left than zero, duh
             return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
 
     with Session(engine) as session:
@@ -90,7 +90,7 @@ def get_task(id: int):
                 'created_by': task_retrieved.created_by,
                 'priority': task_retrieved.priority,
                 'date_modified': task_retrieved.date_modified
-            }
+            } # Creates the json object to return in the request
 
             return jsonify(task), 200
 
