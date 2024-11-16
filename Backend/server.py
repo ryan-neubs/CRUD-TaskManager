@@ -108,26 +108,30 @@ def update_task(id: int):
 
     try:
         with Session(engine) as session:
-            statement = update(Task).where(Task.task_id == id).values(**data)
+            statement = (
+                update(Task)
+                .where(Task.task_id == id)
+                .values(**data) # Updates Task based on keys that are passed in JSON body
+            )
             result = session.execute(statement)
             session.commit()
 
-            if result.rowcount == 0:
+            if result.rowcount == 0: 
                 return jsonify({"message": "Task not found or no changes made"}), 404
 
 
-            updated_task = session.execute(select(Task).where(Task.task_id == id)).scalar_one_or_none()
-            if updated_task:
-                return jsonify({
-                    "id": updated_task.task_id,
-                    "title": updated_task.title,
-                    "description": updated_task.description,
-                    "creation_date": updated_task.creation_date,
-                    "status": updated_task.status,
-                    "created_by": updated_task.created_by,
-                    "priority": updated_task.priority,
-                    "date_modified": updated_task.date_modified
-                }), 200
+            updated_task = session.execute(select(Task).where(Task.task_id == id)).scalar_one_or_none() # Get updated task so we can return it in the JSON
+
+            return jsonify({
+                "id": updated_task.task_id,
+                "title": updated_task.title,
+                "description": updated_task.description,
+                "creation_date": updated_task.creation_date,
+                "status": updated_task.status,
+                "created_by": updated_task.created_by,
+                "priority": updated_task.priority,
+                "date_modified": updated_task.date_modified
+            }), 200
     
     except Exception as e:
         session.rollback()
