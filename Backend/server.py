@@ -87,9 +87,9 @@ def get_task(id: int):
             statement = (
                 select(Task)
                 .filter_by(task_id=id)
-            )
+            ) # SQL Query
 
-            task_retrieved = session.execute(statement).scalars().first()
+            task_retrieved = session.execute(statement).scalars().first() # Execute query and retrieve result
 
             task = {
                 'task_id': task_retrieved.task_id,
@@ -100,7 +100,7 @@ def get_task(id: int):
                 'created_by': task_retrieved.created_by,
                 'priority': task_retrieved.priority,
                 'date_modified': task_retrieved.date_modified
-            }                                       # Creates the json object to return in the request
+            } # Creates the json object to return in the request
 
             return jsonify(task), 200
 
@@ -121,8 +121,8 @@ def update_task(id: int):
                 .values(**data) # Updates Task based on keys that are passed in JSON body
             )
 
-            result = session.execute(statement)
-            session.commit()
+            result = session.execute(statement) # Execute SQL query
+            session.commit() # Commit changes to DB
 
             if result.rowcount == 0: 
                 return jsonify({"message": "Task not found or no changes made"}), 404
@@ -155,12 +155,12 @@ def delete_task(id: int):
             statement = (
                 delete(Task)
                 .where(Task.task_id == id)
-            )
+            ) # SQL Query
 
-            result = session.execute(statement)
-            session.commit()
+            result = session.execute(statement) # Execute SQL query
+            session.commit() # Commit changes to DB
             
-            if result.rowcount == 0:
+            if result.rowcount == 0: # If the query didn't modify anything the task didn't exist
                 return({"message": f"Task of id: {id} does not exist"}), 404
             
             return jsonify({"message": f"Task of id: {id} has been deleted"})
