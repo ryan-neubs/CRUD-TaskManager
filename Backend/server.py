@@ -1,12 +1,15 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from sqlalchemy import create_engine, Column, Integer, String, select
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
-from Backend.db_schema import Task
+from db_schema import Task
 import os
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"": "localhost:5173"}})
+
 
 load_dotenv('.env') # Get environment variables
 db_user = os.getenv("DB_USER")
@@ -198,6 +201,7 @@ def unsupported_media_type_error(error):
         "error": "Unsupported Media Type",
         "message": str(error)
     }
+    print(response)
     return jsonify(response), 415
 
 @app.errorhandler(429)
