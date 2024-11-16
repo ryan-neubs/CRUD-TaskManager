@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from sqlalchemy import create_engine, Column, Integer, String, select
+from sqlalchemy import create_engine, Column, Integer, String, select, update, delete
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
@@ -8,10 +8,8 @@ from db_schema import Task
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"": "localhost:5173"}}) #Allows requests to be made from given domain
-                                                     #Change localhost to whatever domain we decide 
-                                                     #when ready
-
+CORS(app, resources={r"/*": {"": "localhost:5173"}}) # Allows requests to be made from given domain
+                                                     # Change localhost to whatever domain we decide when ready
 
 load_dotenv('.env')                                  #Get environment variables
 db_user = os.getenv("DB_USER")
@@ -51,7 +49,11 @@ def get_tasks():
 
     with Session(engine) as session: 
         try:
-            statement = select(Task).filter_by(created_by='Test User').limit(amount) # SQL Query
+            statement = (
+                select(Task)
+                .filter_by(created_by='Test User')
+                .limit(amount)
+            ) # SQL Query
 
             tasks_retrieved = session.execute(statement).scalars().all() # Executes query
             task_list = [
@@ -82,7 +84,10 @@ def get_task(id: int):
 
     with Session(engine) as session:
         try:
-            statement = select(Task).filter_by(task_id=id)
+            statement = (
+                select(Task)
+                .filter_by(task_id=id)
+            )
 
             task_retrieved = session.execute(statement).scalars().first()
 
@@ -104,25 +109,65 @@ def get_task(id: int):
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:task_id>', methods=['PUT'])
-def update_task(task_id: int):
+@app.route('/tasks/<int:id>', methods=['PUT'])
+def update_task(id: int):
     data = request.get_json()
-    for key, val in data.items():
-        tasks[task_id][key] = val
 
-    return jsonify(tasks[task_id]), 200
+    try:
+        with Session(engine) as session:        
+            statement = (
+                update(Task)
+                .where(Task.task_id == id)
+                .values(**data) # Updates Task based on keys that are passed in JSON body
+            )
+
+            result = session.execute(statement)
+            session.commit()
+
+            if result.rowcount == 0: 
+                return jsonify({"message": "Task not found or no changes made"}), 404
+
+            updated_task = session.execute(select(Task).where(Task.task_id == id)).scalar_one_or_none() # Get updated task so we can return it in the JSON
+
+            return jsonify({
+                "id": updated_task.task_id,
+                "title": updated_task.title,
+                "description": updated_task.description,
+                "creation_date": updated_task.creation_date,
+                "status": updated_task.status,
+                "created_by": updated_task.created_by,
+                "priority": updated_task.priority,
+                "date_modified": updated_task.date_modified
+            }), 200
+    
+    except Exception as e:
+        session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id: int):
-    if task_id < 0:
+@app.route('/tasks/<int:id>', methods=['DELETE'])
+def delete_task(id: int):
+    if id < 0:
         return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
+    
+    try:
+        with Session(engine) as session:
+            statement = (
+                delete(Task)
+                .where(Task.task_id == id)
+            )
 
-    if task_id not in tasks:
-        return jsonify({"error": f"Task with id {task_id} not found."}), 404
+            result = session.execute(statement)
+            session.commit()
+            
+            if result.rowcount == 0:
+                return({"message": f"Task of id: {id} does not exist"}), 404
+            
+            return jsonify({"message": f"Task of id: {id} has been deleted"})
 
-    del tasks[task_id]
-    return '', 204
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 @app.errorhandler(400)
@@ -218,7 +263,7 @@ def too_many_requests_error(error):
 def internal_server_error(error):
     response = {
         "error": "Internal Server Error",
-        "message": "An unexpected error occurred. Please try again later."
+        "message": str(error)
     }
     return jsonify(response), 500
 
