@@ -43,7 +43,7 @@ def create_task():
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/', methods=['GET'])              # Change this to use a query parameter such as ?amount=10 (Ex: http://localhost:5000/tasks/?amount=10) 
+@app.route('/tasks', methods=['GET'])              # Change this to use a query parameter such as ?amount=10 (Ex: http://localhost:5000/tasks/?amount=10) 
 def get_tasks():
     amount = request.args.get('amount')             # Booya, first try. Retrieves amount specified in request
 
@@ -51,7 +51,7 @@ def get_tasks():
         try:
             statement = (
                 select(Task)
-                .filter_by(created_by='Test User')
+                .where(created_by='Test User') # Need to pass in a user later, add to params
                 .limit(amount)
             ) # SQL Query
 
@@ -77,7 +77,7 @@ def get_tasks():
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:id>', methods=["GET"])      # int:id is the id number of the task being retrieved
+@app.route('/tasks/<int:id>', methods=["GET"])      # Example URL for task_id of 5: http://localhost:5000/tasks/5
 def get_task(id: int):
     if id < 0:                                      # Can't have an id left than zero, duh
             return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
@@ -109,7 +109,7 @@ def get_task(id: int):
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:id>', methods=['PUT'])
+@app.route('/tasks/<int:id>', methods=['PUT']) # Example URL for task_id of 5: http://localhost:5000/tasks/5
 def update_task(id: int):
     data = request.get_json()
 
@@ -145,7 +145,7 @@ def update_task(id: int):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/tasks/<int:id>', methods=['DELETE'])
+@app.route('/tasks/<int:id>', methods=['DELETE']) # Example URL for task_id of 5: http://localhost:5000/tasks/5
 def delete_task(id: int):
     if id < 0:
         return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
