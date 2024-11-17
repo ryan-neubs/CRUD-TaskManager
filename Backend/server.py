@@ -51,7 +51,7 @@ def get_tasks():
         try:
             statement = (
                 select(Task)
-                .where(created_by='Test User') # Need to pass in a user later, add to params
+                .filter_by(created_by='Test User') # Need to pass in a user later, add to params
                 .limit(amount)
             ) # SQL Query
 
