@@ -2,10 +2,12 @@ import { useState } from 'react'
 import './App.css'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 
 function App() {
+  
+  const SERVER_URL = 'localhost:5000'
 
   const [taskData, setTaskData] = useState({
     title: "",
@@ -19,15 +21,38 @@ function App() {
 
   const [task_id, set_task_id] = useState("");
 
+  const [tasks, setTasks] = useState([]);
+  const [isModelOpen, setIsModelOpen] = useState(false);
 
 
+  const fetchTasks = async () => {
+    try {
+      const request = await fetch(`http://localhost:5000/tasks`, {
+        method: "GET",
+        headers: {
+          "Accept":"application/json",
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await request.json();
+      console.log(data)
+      setTasks(data)
+    } catch (error) {
+      console.log('Error: ' + error)
+    }
+  };
 
-
-  
+  const handleOpenTasks = async () => {
+    await fetchTasks();
+    setIsModelOpen(true);
+  }
+  const handleCloseTasks = async () => {
+    setIsModelOpen(false);
+  }
 
   const sendTask = async () => {
     try {
-      const request = await fetch("http://localhost:5000/tasks", {
+      const request = await fetch(`http://localhost:5000/tasks`, {
         method: "POST",
         body: JSON.stringify(taskData),
         headers: {
@@ -50,6 +75,25 @@ function App() {
       console.log('Error: ' + error)
     }
   }
+
+
+  const deleteTaskById = async (id) => {
+    try {
+      const request = await fetch(`http://localhost:5000/tasks/${id}` ,{
+        method: "DELETE",
+      });
+      fetchTasks();
+    } catch (error){
+      console.log('Error: ' + error)
+    }
+  }
+
+
+
+
+
+
+
 
   const handleSubmit = (e) =>{
     e.preventDefault();
@@ -83,7 +127,7 @@ function App() {
         <nav>
           <ul className="nav-links">
             <li className ="Tasks_Nav">
-                <a href="#tasks" onClick={() => alert('This button will eventually navigate either to a page or bring up a side panel that shows all current active tasks')}>Current Tasks</a>
+                <button className='current-tasks-button' onClick={handleOpenTasks}>Current Tasks</button>
             </li>
           </ul>
         </nav>
@@ -94,6 +138,28 @@ function App() {
           <h2>Discover Amazing Features</h2>
           <p>Experience simplicity and functionality with our app. Let's get started!</p>
           
+          {isModelOpen && (
+            <div className='model'>
+              <div className='model-content'>
+                <CloseIcon className='close-button' onClick={handleCloseTasks}>Close</CloseIcon>
+                <h2>Current Tasks</h2>
+                <ul>
+                  {tasks.map((task) => (
+                    <li key={task.task_id}>
+                      <p>ID: {task.task_id}</p>
+                      <h3>{task.title}</h3>
+                      <p>{task.description}</p>
+                      <p>Priority: {task.priority}</p>
+                      <p>Status: {task.status}</p>
+                      <DeleteIcon className='delete-button' onClick={() => deleteTaskById(task.task_id)}></DeleteIcon>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+
           <div className='new-form-container'>
             <form className='task-form' onSubmit={handleSubmit}>
               <label id='title'>Title</label>
@@ -123,9 +189,9 @@ function App() {
               onChange={handleChange}
               required>
                 <option value="">Select</option>
-                <option value="3">Low (1)</option>
+                <option value="1">High (1)</option>
                 <option value="2">Medium (2)</option>
-                <option value="1">High (3)</option>
+                <option value="3">Low (3)</option>
               </select>
               
 
@@ -143,22 +209,6 @@ function App() {
                 <option value="Done">Done</option>
               </select>
             <button type='submit'>Create Task</button>
-            </form>
-          </div>
-
-
-          <div className='delete-form-container'>
-            <form className='delete-task-form' onSubmit={handleDelete}>
-              <label id='TaskId'>Task ID</label>
-              <input
-                type='number'
-                id='task_id'
-                name='task_id'
-                value={task_id}
-                onChange={handleDeleteChange}
-                required
-              />
-              <button type='submit'>Delete task</button>
             </form>
           </div>
 
