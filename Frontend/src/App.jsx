@@ -6,8 +6,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 
 function App() {
-  
-  const SERVER_URL = 'localhost:5000'
 
   const [taskData, setTaskData] = useState({
     title: "",

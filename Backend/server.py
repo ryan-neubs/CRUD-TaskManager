@@ -8,7 +8,7 @@ from db_schema import Task
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"": "localhost:5173"}}) # Allows requests to be made from given domain
+CORS(app, resources={r"/*": {"": "*"}}) # Allows requests to be made from given domain
                                                      # Change localhost to whatever domain we decide when ready
 
 load_dotenv('.env')                                  #Get environment variables
@@ -178,6 +178,7 @@ def bad_request_error(error):
     }
     return jsonify(response), 400
 
+
 @app.errorhandler(401)
 def unauthorized_error(error):
     response = {
@@ -185,6 +186,7 @@ def unauthorized_error(error):
         "message": str(error)
     }
     return jsonify(response), 401
+
 
 @app.errorhandler(403)
 def forbidden_error(error):
@@ -194,6 +196,7 @@ def forbidden_error(error):
     }
     return jsonify(response), 403
 
+
 @app.errorhandler(404)
 def not_found_error(error):
     response = {
@@ -201,6 +204,7 @@ def not_found_error(error):
         "message": str(error)
     }
     return jsonify(response), 404
+
 
 @app.errorhandler(405)
 def method_not_allowed_error(error):
@@ -210,6 +214,7 @@ def method_not_allowed_error(error):
     }
     return jsonify(response), 405
 
+
 @app.errorhandler(408)
 def request_timeout_error(error):
     response = {
@@ -217,6 +222,7 @@ def request_timeout_error(error):
         "message": str(error)
     }
     return jsonify(response), 408
+
 
 @app.errorhandler(409)
 def conflict_error(error):
@@ -226,6 +232,7 @@ def conflict_error(error):
     }
     return jsonify(response), 409
 
+
 @app.errorhandler(410)
 def gone_error(error):
     response = {
@@ -234,6 +241,7 @@ def gone_error(error):
     }
     return jsonify(response), 410
 
+
 @app.errorhandler(413)
 def payload_too_large_error(error):
     response = {
@@ -241,6 +249,7 @@ def payload_too_large_error(error):
         "message": str(error)
     }
     return jsonify(response), 413
+
 
 @app.errorhandler(415)
 def unsupported_media_type_error(error):
@@ -251,6 +260,7 @@ def unsupported_media_type_error(error):
     print(response)
     return jsonify(response), 415
 
+
 @app.errorhandler(429)
 def too_many_requests_error(error):
     response = {
@@ -258,6 +268,7 @@ def too_many_requests_error(error):
         "message": str(error)
     }
     return jsonify(response), 429
+
 
 @app.errorhandler(500)
 def internal_server_error(error):
