@@ -15,7 +15,7 @@ After setup you can run it this way:</br>
 1). ./env/Scripts/activate</br>
 2). python server.py</br>
 
-Do leave the virtual envrionment, simply type 'deactivate' </br>
+To leave the virtual envrionment, simply type 'deactivate' </br>
 
 
 NOTE: Be sure to run in a virtual environment when running locally
