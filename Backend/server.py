@@ -80,7 +80,7 @@ def get_tasks():
 @app.route('/tasks/<int:id>', methods=["GET"])      # Example URL for task_id of 5: http://localhost:5000/tasks/5
 def get_task(id: int):
     if id < 0:                                      # Can't have an id left than zero, duh
-            return jsonify({"error": "Invalid input, task id must be a postive integer."}), 400
+            return jsonify({"error": "Invalid input, task id must be a positive integer."}), 400
 
     with Session(engine) as session:
         try:
